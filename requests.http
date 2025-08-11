@@ -1,0 +1,9 @@
+### requests.http
+### TEST GraphQL endpoint
+
+http://localhost:8000/graphql/
+Content-Type: application/json
+
+{
+  "query": "{ hello }"
+}
