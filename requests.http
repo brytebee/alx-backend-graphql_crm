@@ -7,3 +7,17 @@ Content-Type: application/json
 {
   "query": "{ hello }"
 }
+
+### Create Customer
+
+POST http://localhost:8000/graphql/
+Content-Type: application/json
+
+{
+  "query": "mutation CreateCustomer($name: String!, $email: String!, $phone: String) { createCustomer(name: $name, email: $email, phone: $phone) { customer { id name email phone } message } }",
+  "variables": {
+    "name": "John Doe",
+    "email": "johndoe@example.com",
+    "phone": "+1234567890"
+  }
+}
