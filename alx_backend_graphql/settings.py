@@ -43,6 +43,7 @@ INSTALLED_APPS = [
     # Third party apps & libraries
     'rest_framework',
     'graphene_django',
+    'django_filters',
 
     # Local apps
     'crm',

@@ -1,23 +1,426 @@
 ### requests.http
 ### TEST GraphQL endpoint
 
-http://localhost:8000/graphql/
+### Basic Hello World Test
+POST http://localhost:8000/graphql/
 Content-Type: application/json
 
 {
   "query": "{ hello }"
 }
 
-### Create Customer
+###
 
+### Create Customer
 POST http://localhost:8000/graphql/
 Content-Type: application/json
 
 {
-  "query": "mutation CreateCustomer($name: String!, $email: String!, $phone: String) { createCustomer(name: $name, email: $email, phone: $phone) { customer { id name email phone } message } }",
+  "query": "mutation CreateCustomer($name: String!, $email: String!, $phone: String) { createCustomer(name: $name, email: $email, phone: $phone) { customer { id name email phone } message success } }",
   "variables": {
     "name": "John Doe",
     "email": "johndoe@example.com",
     "phone": "+1234567890"
+  }
+}
+
+###
+
+### Create Customer with Invalid Phone
+POST http://localhost:8000/graphql/
+Content-Type: application/json
+
+{
+  "query": "mutation CreateCustomer($name: String!, $email: String!, $phone: String) { createCustomer(name: $name, email: $email, phone: $phone) { customer { id name email phone } message success } }",
+  "variables": {
+    "name": "Alice Smith",
+    "email": "alice@example.com",
+    "phone": "invalid-phone"
+  }
+}
+
+###
+
+### Bulk Create Customers
+POST http://localhost:8000/graphql/
+Content-Type: application/json
+
+{
+  "query": "mutation BulkCreateCustomers($customers: [CustomerInput!]!) { bulkCreateCustomers(customers: $customers) { totalCount successCount errorCount message success results { success error customer { id name email phone } inputData { name email phone } } } }",
+  "variables": {
+    "customers": [
+      {
+        "name": "John Doe",
+        "email": "john@example.com",
+        "phone": "+1234567890"
+      },
+      {
+        "name": "Jane Smith", 
+        "email": "john@example.com",
+        "phone": "+1234567891"
+      },
+      {
+        "name": "Bob Wilson",
+        "email": "bob@example.com",
+        "phone": "123-456-7890"
+      }
+    ]
+  }
+}
+
+###
+
+### Create Product
+POST http://localhost:8000/graphql/
+Content-Type: application/json
+
+{
+  "query": "mutation CreateProduct($name: String!, $price: Decimal!, $stock: Int) { createProduct(name: $name, price: $price, stock: $stock) { product { id name price stock } message success } }",
+  "variables": {
+    "name": "Neo-dolato",
+    "price": "20.00",
+    "stock": 10
+  }
+}
+
+###
+
+### Create Product with Invalid Price
+POST http://localhost:8000/graphql/
+Content-Type: application/json
+
+{
+  "query": "mutation CreateProduct($name: String!, $price: Decimal!, $stock: Int) { createProduct(name: $name, price: $price, stock: $stock) { product { id name price stock } message success } }",
+  "variables": {
+    "name": "Invalid Product",
+    "price": "-10.00",
+    "stock": 5
+  }
+}
+
+###
+
+### Create Second Product
+POST http://localhost:8000/graphql/
+Content-Type: application/json
+
+{
+  "query": "mutation CreateProduct($name: String!, $price: Decimal!, $stock: Int) { createProduct(name: $name, price: $price, stock: $stock) { product { id name price stock } message success } }",
+  "variables": {
+    "name": "Laptop Pro",
+    "price": "999.99",
+    "stock": 5
+  }
+}
+
+###
+
+### Create Third Product (Low Stock)
+POST http://localhost:8000/graphql/
+Content-Type: application/json
+
+{
+  "query": "mutation CreateProduct($name: String!, $price: Decimal!, $stock: Int) { createProduct(name: $name, price: $price, stock: $stock) { product { id name price stock } message success } }",
+  "variables": {
+    "name": "Wireless Mouse",
+    "price": "25.99",
+    "stock": 2
+  }
+}
+
+###
+
+### Create Order
+POST http://localhost:8000/graphql/
+Content-Type: application/json
+
+{
+  "query": "mutation CreateOrder($customerId: ID!, $productIds: [ID!]!) { createOrder(customerId: $customerId, productIds: $productIds) { order { id customer { id name email } products { id name price } totalAmount orderDate } message success } }",
+  "variables": {
+    "customerId": "1",
+    "productIds": ["1", "2"]
+  }
+}
+
+###
+
+### Create Order with Invalid Customer
+POST http://localhost:8000/graphql/
+Content-Type: application/json
+
+{
+  "query": "mutation CreateOrder($customerId: ID!, $productIds: [ID!]!) { createOrder(customerId: $customerId, productIds: $productIds) { order { id customer { id name email } products { id name price } totalAmount orderDate } message success } }",
+  "variables": {
+    "customerId": "999",
+    "productIds": ["1"]
+  }
+}
+
+###
+
+### Create Order with Custom Date
+POST http://localhost:8000/graphql/
+Content-Type: application/json
+
+{
+  "query": "mutation CreateOrder($customerId: ID!, $productIds: [ID!]!, $orderDate: DateTime) { createOrder(customerId: $customerId, productIds: $productIds, orderDate: $orderDate) { order { id customer { name } products { name price } totalAmount orderDate } message success } }",
+  "variables": {
+    "customerId": "2",
+    "productIds": ["2", "3"],
+    "orderDate": "2025-08-24T10:30:00Z"
+  }
+}
+
+###
+
+### Query All Customers
+POST http://localhost:8000/graphql/
+Content-Type: application/json
+
+{
+  "query": "query { allCustomers { id name email phone createdAt } }"
+}
+
+###
+
+### Query All Products
+POST http://localhost:8000/graphql/
+Content-Type: application/json
+
+{
+  "query": "query { allProducts { id name price stock createdAt } }"
+}
+
+###
+
+### Query All Orders
+POST http://localhost:8000/graphql/
+Content-Type: application/json
+
+{
+  "query": "query { allOrders { id customer { name email } products { name price } totalAmount orderDate } }"
+}
+
+###
+
+### Query Customer by ID
+POST http://localhost:8000/graphql/
+Content-Type: application/json
+
+{
+  "query": "query GetCustomer($id: ID!) { customer(id: $id) { id name email phone createdAt } }",
+  "variables": {
+    "id": "1"
+  }
+}
+
+###
+
+### Query Product by ID
+POST http://localhost:8000/graphql/
+Content-Type: application/json
+
+{
+  "query": "query GetProduct($id: ID!) { product(id: $id) { id name price stock createdAt } }",
+  "variables": {
+    "id": "1"
+  }
+}
+
+###
+
+### Query Order by ID
+POST http://localhost:8000/graphql/
+Content-Type: application/json
+
+{
+  "query": "query GetOrder($id: ID!) { order(id: $id) { id customer { name email } products { name price } totalAmount orderDate } }",
+  "variables": {
+    "id": "1"
+  }
+}
+
+###
+
+### Filter Customers by Name
+POST http://localhost:8000/graphql/
+Content-Type: application/json
+
+{
+  "query": "query FilterCustomers($filter: CustomerFilterInput, $orderBy: String) { customersFiltered(filter: $filter, orderBy: $orderBy) { id name email phone createdAt } }",
+  "variables": {
+    "filter": {
+      "nameIcontains": "John"
+    },
+    "orderBy": "name"
+  }
+}
+
+###
+
+### Filter Customers by Email and Creation Date
+POST http://localhost:8000/graphql/
+Content-Type: application/json
+
+{
+  "query": "query FilterCustomers($filter: CustomerFilterInput) { customersFiltered(filter: $filter) { id name email phone createdAt } }",
+  "variables": {
+    "filter": {
+      "emailIcontains": "example.com",
+      "createdAtGte": "2025-01-01T00:00:00Z"
+    }
+  }
+}
+
+###
+
+### Filter Customers by Phone Pattern
+POST http://localhost:8000/graphql/
+Content-Type: application/json
+
+{
+  "query": "query FilterCustomers($filter: CustomerFilterInput) { customersFiltered(filter: $filter) { id name email phone createdAt } }",
+  "variables": {
+    "filter": {
+      "phonePattern": "+1"
+    }
+  }
+}
+
+###
+
+### Filter Products by Price Range
+POST http://localhost:8000/graphql/
+Content-Type: application/json
+
+{
+  "query": "query FilterProducts($filter: ProductFilterInput, $orderBy: String) { productsFiltered(filter: $filter, orderBy: $orderBy) { id name price stock createdAt } }",
+  "variables": {
+    "filter": {
+      "priceGte": "20.00",
+      "priceLte": "1000.00"
+    },
+    "orderBy": "-price"
+  }
+}
+
+###
+
+### Filter Products by Low Stock
+POST http://localhost:8000/graphql/
+Content-Type: application/json
+
+{
+  "query": "query FilterProducts($filter: ProductFilterInput) { productsFiltered(filter: $filter) { id name price stock createdAt } }",
+  "variables": {
+    "filter": {
+      "lowStock": true
+    }
+  }
+}
+
+###
+
+### Filter Orders by Customer Name
+POST http://localhost:8000/graphql/
+Content-Type: application/json
+
+{
+  "query": "query FilterOrders($filter: OrderFilterInput) { ordersFiltered(filter: $filter) { id customer { name } products { name price } totalAmount orderDate } }",
+  "variables": {
+    "filter": {
+      "customerName": "John"
+    }
+  }
+}
+
+###
+
+### Filter Orders by Product Name and Amount Range
+POST http://localhost:8000/graphql/
+Content-Type: application/json
+
+{
+  "query": "query FilterOrders($filter: OrderFilterInput, $orderBy: String) { ordersFiltered(filter: $filter, orderBy: $orderBy) { id customer { name } products { name price } totalAmount orderDate } }",
+  "variables": {
+    "filter": {
+      "productName": "Laptop",
+      "totalAmountGte": "500.00"
+    },
+    "orderBy": "-totalAmount"
+  }
+}
+
+###
+
+### Filter Orders by Product ID
+POST http://localhost:8000/graphql/
+Content-Type: application/json
+
+{
+  "query": "query FilterOrders($filter: OrderFilterInput) { ordersFiltered(filter: $filter) { id customer { name } products { name price } totalAmount orderDate } }",
+  "variables": {
+    "filter": {
+      "productId": "1"
+    }
+  }
+}
+
+###
+
+### Django Filter Connection - Customers with Pagination
+POST http://localhost:8000/graphql/
+Content-Type: application/json
+
+{
+  "query": "query FilteredCustomersConnection($nameIcontains: String, $first: Int) { filteredCustomers(nameIcontains: $nameIcontains, first: $first) { edges { node { id name email phone createdAt } cursor } pageInfo { hasNextPage hasPreviousPage startCursor endCursor } } }",
+  "variables": {
+    "nameIcontains": "o",
+    "first": 5
+  }
+}
+
+###
+
+### Django Filter Connection - Products with Low Stock
+POST http://localhost:8000/graphql/
+Content-Type: application/json
+
+{
+  "query": "query FilteredProductsConnection($lowStock: Boolean) { filteredProducts(lowStock: $lowStock) { edges { node { id name price stock createdAt } } } }",
+  "variables": {
+    "lowStock": true
+  }
+}
+
+###
+
+### Django Filter Connection - Orders by Customer Name
+POST http://localhost:8000/graphql/
+Content-Type: application/json
+
+{
+  "query": "query FilteredOrdersConnection($customerName: String) { filteredOrders(customerName: $customerName) { edges { node { id customer { name email } products { name price } totalAmount orderDate } } } }",
+  "variables": {
+    "customerName": "John"
+  }
+}
+
+###
+
+### Complex Filter - Orders with Multiple Criteria
+POST http://localhost:8000/graphql/
+Content-Type: application/json
+
+{
+  "query": "query ComplexOrderFilter($filter: OrderFilterInput, $orderBy: String) { ordersFiltered(filter: $filter, orderBy: $orderBy) { id customer { name email } products { name price } totalAmount orderDate } }",
+  "variables": {
+    "filter": {
+      "totalAmountGte": "25.00",
+      "totalAmountLte": "2000.00",
+      "orderDateGte": "2025-01-01T00:00:00Z",
+      "productName": "Pro"
+    },
+    "orderBy": "-orderDate"
   }
 }
