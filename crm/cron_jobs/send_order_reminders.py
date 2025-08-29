@@ -1,5 +1,6 @@
 #!/usr/bin/env python3
 import datetime, requests
+# from gql import gql, Client 
 
 endpoint = "http://localhost:8000/graphql"
 
