@@ -7,6 +7,7 @@ from .mutations import CreateCustomer, BulkCreateCustomers, CreateProduct, Creat
 from .types import CustomerType, ProductType, OrderType
 from .models import Customer, Product, Order
 from .filters import CustomerFilter, ProductFilter, OrderFilter
+# from crm.models import Product
 
 # Custom input types for filtering
 class CustomerFilterInput(graphene.InputObjectType):
