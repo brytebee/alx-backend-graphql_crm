@@ -304,3 +304,19 @@ class CreateOrder(graphene.Mutation):
         
         except Exception as e:
             raise Exception(f"Failed to create order: {str(e)}")
+
+class UpdateLowStockProducts(graphene.Mutation):
+    updated_products = graphene.List(ProductType)
+    message = graphene.String()
+
+    def mutate(self, info):
+        low_stock = Product.objects.filter(stock__lt=10)
+        updated = []
+        for product in low_stock:
+            product.stock += 10  # simulate restocking
+            product.save()
+            updated.append(product)
+        return UpdateLowStockProducts(
+            updated_products=updated,
+            message="Stock updated successfully"
+        )

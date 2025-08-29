@@ -1,8 +1,9 @@
 # crm/schema.py
 import graphene
-from graphene_django import DjangoObjectType
+import datetime
+from django.utils import timezone
 from graphene_django.filter import DjangoFilterConnectionField
-from .mutations import CreateCustomer, BulkCreateCustomers, CreateProduct, CreateOrder
+from .mutations import CreateCustomer, BulkCreateCustomers, CreateProduct, CreateOrder, UpdateLowStockProducts
 from .types import CustomerType, ProductType, OrderType
 from .models import Customer, Product, Order
 from .filters import CustomerFilter, ProductFilter, OrderFilter
@@ -166,11 +167,18 @@ class Query(graphene.ObjectType):
                 queryset = queryset.filter(products__id=filter['product_id'])
         
         return queryset.distinct().order_by(order_by)
+    
+    orders_last7days = graphene.List(OrderType)
+    def resolve_orders_last7days(self, info):
+        cutoff = timezone.now() - datetime.timedelta(days=7)
+        return Order.objects.filter(order_date__gte=cutoff)
+
 
 class Mutation(graphene.ObjectType):
     create_customer = CreateCustomer.Field()
     bulk_create_customers = BulkCreateCustomers.Field()
     create_product = CreateProduct.Field()
     create_order = CreateOrder.Field()
+    update_low_stock_products = UpdateLowStockProducts.Field()
 
 schema = graphene.Schema(query=Query, mutation=Mutation)
