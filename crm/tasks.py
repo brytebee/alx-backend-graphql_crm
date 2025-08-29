@@ -1,4 +1,6 @@
 import datetime, requests
+# from datetime import datetime
+# import requests
 from celery import shared_task
 
 @shared_task
